@@ -3,8 +3,6 @@ require 'fpdf.php';
 
 $fecha = $_REQUEST['fecha'];
 
-
-
 $pdf = new FPDF();
 $pdf->AliasNbPages();
 $pdf->AddPage();
@@ -33,16 +31,15 @@ $pdf->Cell(20,10,'Total',1,1,'C');
 //
 //Consulta a Mysql
 //
-	$link = mysql_connect('localhost', 'root', 'admin') or die('No se pudo conectar: ' . mysql_error());
-		//echo 'Connected successfully';
-	mysql_select_db('recepcion') or die('No se pudo seleccionar la base de datos');
+	$conn = new mysqli("192.168.0.73","usuario", "archivo123$", "recepcion");
+	$conn->set_charset("utf8");
 
 	// Realizar una consulta MySQL
-	$query = "SELECT r.numRec, r.numSol, r.total, r.fecha, d.concepto, CONCAT(u.nombre,' ',u.apePat,' ',apeMat) as nombres, r.anulado FROM recibo as r, detallerecibo as d , solicitudes as s, usuarios as u WHERE s.codUsu = u.codUsu and r.numSol = s.codSol and r.numRec = d.numRecibo and r.fecha LIKE '".$fecha."%' GROUP BY r.numRec;";
-	$result = mysql_query($query) or die('Consulta fallida: ' . mysql_error());
+	$sql = "SELECT r.numRec, r.numSol, r.total, r.fecha, d.concepto, CONCAT(u.nombre,' ',u.apePat,' ',apeMat) as nombres, r.anulado FROM recibo as r, detallerecibo as d , solicitudes as s, usuarios as u WHERE s.codUsu = u.codUsu and r.numSol = s.codSol and r.numRec = d.numRecibo and r.fecha LIKE '".$fecha."%' GROUP BY r.numRec;";
+	$result = $conn->query($sql);
 
 	$i =1;
-	while ($line = mysql_fetch_array($result)) {
+	while ($line = $result->fetch_array()) {
 		
 		if($line[6] == 1)
 		{
@@ -67,16 +64,20 @@ $pdf->Cell(20,10,'Total',1,1,'C');
 
 	// Consulta para la Suma de todos los totales
 	$suma = "SELECT sum(r.total) AS suma FROM recibo as r WHERE r.fecha LIKE '".$fecha."%';";
-	$resultSuma = mysql_query($suma) or die('Suma Fallida: ' . mysql_error());
-	$sumaTotal = mysql_fetch_array($resultSuma);
+	$resultSuma = $conn->query($suma);
+	
+	$sumaTotal = $resultSuma->fetch_array();
 	// Liberar resultados
-	mysql_free_result($result);
-	// Cerrar la conexión
-	mysql_close($link);
+	//mysql_free_result($result);
+
+
 	// Imprime la suma total
 	$pdf->SetFont("Arial",'B',12);
 	$pdf->Cell(163,10,'Total',0,0,'R'); // total
 	$pdf->Cell(20,10,round($sumaTotal[0],2),1,1,'C'); // total
+
+	#Cierra la conexion
+	$conn->close();
 
 	$pdf->Footer();
 $pdf->Output();
