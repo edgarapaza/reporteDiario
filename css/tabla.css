@@ -1,0 +1,42 @@
+body{
+    background: #0aa;
+}
+html {
+    font-family: 'helvetica neue', helvetica, arial, sans-serif;
+  }
+  
+  thead th, tfoot th {
+    font-family: 'helvetica neue', cursive;
+    font-size: 2em;
+  }
+  
+  th {
+    letter-spacing: 2px;
+  }
+  
+  td {
+    letter-spacing: 1px;
+  }
+  
+  tbody td {
+    text-align: left;
+  }
+  
+  tfoot th {
+    text-align: right;
+  }
+table{
+    width: 100%;
+    border-collapse: collapse;
+}
+
+
+.datos{
+    border: 1px solid #000;
+}
+
+.titulos{
+    border: 1px solid #000;
+    text-align: center;
+    font-weight: bold;
+}
